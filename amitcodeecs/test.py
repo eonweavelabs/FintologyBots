@@ -1,8 +1,9 @@
-from main import controller
-application_id="672c131728182d825e042763"
-controller(application_id=application_id, card_name="Venture Rewards One By Capital One", product_id="6731293c0d10d1477e93b8ff")
+from Utils.database_queries import fetch_user_json
 
+application_id = "672c131728182d825e042763"
+user_data = fetch_user_json(application_id)
 
-
-
-
+if user_data:
+    print("User JSON fetched successfully:", user_data)
+else:
+    print("Failed to fetch user JSON.")

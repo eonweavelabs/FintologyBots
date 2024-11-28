@@ -1,19 +1,18 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-client = MongoClient("mongodb+srv://root:vGjXFpOcfKjxVFDs@fintologycluster.ltptz.mongodb.net/?retryWrites=true&w=majority")
+# Connection URI
+uri = "mongodb+srv://root:vGjXFpOcfKjxVFDs@fintologycluster.ltptz.mongodb.net/?retryWrites=true&w=majority"
+client = MongoClient(uri)
+db = client["fintologycluster"]
 
-db = client["fintologycluster"]  # Database name
-
-# Insert a sample application document
-application_id = "672c131728182d825e042763"
+# Document to insert
 application_data = {
-    "_id": ObjectId(application_id),  # Set the _id to match the one you're looking for
-    "name": "Test Application",
-    "client_id": ObjectId(),  # This will be an ObjectId for the associated client
-    "status": "new"
+    "_id": ObjectId("672c131728182d825e042763"),
+    "client_id": ObjectId("some_client_id"),  # Replace with a valid client_id from your users collection
+    # Add any other fields required by your logic
 }
 
-# Insert the document into the 'applications' collection
-result = db.applications.insert_one(application_data)
-print(f"Inserted application with id: {result.inserted_id}")
+# Insert document
+db.applications.insert_one(application_data)
+print(f"Inserted application with id: {application_data['_id']}")

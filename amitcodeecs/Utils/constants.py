@@ -1,4 +1,7 @@
-mongo_conn="mongodb+srv://root:vGjXFpOcfKjxVFDs@fintologycluster.ltptz.mongodb.net/?retryWrites=true&w=majority&appName=FintologyCluster"
+mongo_conn = "mongodb+srv://root:vGjXFpOcfKjxVFDs@fintologycluster.ltptz.mongodb.net/?retryWrites=true&w=majority&appName=FintologyCluster"
+
+
+
 MAILSLURP_API_KEY="8eb48b02bc8c61ba6c2d60f8f26506add361ae9fb792cc13739cf3b294436773"
 MAILSLURP_DOMAIN="member.fintology.ai"
 WEBSHARE_API_KEY="8vvmwp34tgvzze9oti3wgo6eq8nc89g53c0rc6ks"
@@ -7,7 +10,7 @@ prod_encryption_key='0SIE9dV6w/72O4/dpjuToKIMxFPIt6+bOxsBqmMeGbk='
 prod_encryption_iv='JXNbYGW+lcw3jxz/Kqcvhg=='
 dev_encryption_key='8QMnvhRB0ONK9Ov2alPJpVm/saXdZlqTGOCySNDUp0I='
 dev_encryption_iv='9W5A5Aj8RDXJFAsLsOUO4g=='
-DEV_MACHINE_NAME=["Saranshs-MacBook-Pro.local", "BoxBox", "LTA11DWFPL"]
+DEV_MACHINE_NAME = ["localhost", "127.0.0.1"]
 proxylist=[
     "154.194.16.140:6059",
     "72.46.139.16:6576",

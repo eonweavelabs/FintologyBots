@@ -1,0 +1,18 @@
+import pytest
+import logging
+from unittest.mock import patch
+from Utils.encrypt_user_fields import encrypt_user_fields
+
+def test_logging_error_handling():
+    with patch('logging.getLogger') as mock_get_logger:
+        mock_logger = MagicMock()
+        mock_get_logger.return_value = mock_logger
+
+        with patch('Utils.encrypt_user_fields.users_collection.find_one') as mock_find_one:
+            # Simulate MongoDB connection error
+            mock_find_one.side_effect = Exception("MongoDB Error")
+            
+            encrypt_user_fields()
+
+            # Ensure that the error is logged
+            mock_logger.error.assert_called_with("Error while encrypting user fields: MongoDB Error")
