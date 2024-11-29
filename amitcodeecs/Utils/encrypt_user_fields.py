@@ -1,57 +1,35 @@
-# File: Utils/encrypt_user_fields.py
+# Utils/encrypt_user_fields.py
 
+import base64
+from Crypto.Cipher import AES
+from Utils.constants import prod_encryption_key, prod_encryption_iv
+from Utils.database_conn import applications  # Proper import of applications
 import logging
-from .decrypt import encrypt  # Relative import for encrypt
-from .constants import *      # Relative import for constants
 
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# MongoDB connection setup
-client = MongoClient(mongo_conn)  # mongo_conn should be your MongoDB connection string
-db = client["fintologycluster"]
-users_collection = db["users"]
-
 def encrypt_user_fields():
-    """Encrypts specific user fields in the MongoDB collection"""
     try:
-        user = users_collection.find_one()  # Fetches the first document from the collection
+        key = base64.b64decode(prod_encryption_key)
+        iv = base64.b64decode(prod_encryption_iv)
 
-        if not user:  # If no user is found, exit the function
-            logger.info("No user documents found in the collection.")
-            return
+        # Check key and IV lengths
+        if len(key) not in [16, 24, 32]:
+            raise ValueError("Invalid encryption key length. Must be 16, 24, or 32 bytes.")
+        if len(iv) != 16:
+            raise ValueError("Invalid IV length. Must be 16 bytes.")
 
-        update_fields = {}  # This will hold the encrypted fields
+        cipher = AES.new(key, AES.MODE_CFB, iv)
 
-        # Encrypting the 'personal' field
-        if "personal" in user:
-            encrypted_personal = encrypt(str(user["personal"]))  # Encrypt the personal field
-            update_fields["personal"] = encrypted_personal
-            logger.info(f"Encrypted 'personal' field for user: {user['_id']}")
-
-        # Encrypting the 'preApproval' field
-        if "preApproval" in user:
-            encrypted_preApproval = encrypt(str(user["preApproval"]))  # Encrypt preApproval field
-            update_fields["preApproval"] = encrypted_preApproval
-            logger.info(f"Encrypted 'preApproval' field for user: {user['_id']}")
-
-        # Encrypting the 'business' field
-        if "business" in user:
-            encrypted_business = encrypt(str(user["business"]))  # Encrypt business field
-            update_fields["business"] = encrypted_business
-            logger.info(f"Encrypted 'business' field for user: {user['_id']}")
-
-        # Update the MongoDB document with the encrypted fields
-        if update_fields:  # If there are fields to update, update the document
-            logger.info(f"Attempting to update user: {user['_id']} with encrypted fields: {update_fields}")
-            users_collection.update_one({"_id": user["_id"]}, {"$set": update_fields})
-            logger.info(f"Updated user: {user['_id']} with encrypted fields.")
-        else:
-            logger.info(f"No fields to encrypt for user: {user['_id']}")
-
-    except Exception as e:
+        users = applications.find({})
+        for user in users:
+            plaintext = user.get('personal', '')
+            if plaintext:
+                encrypted = cipher.encrypt(plaintext.encode('utf-8'))
+                applications.update_one(
+                    {"_id": user["_id"]},
+                    {"$set": {"personal": base64.b64encode(encrypted).decode('utf-8')}}
+                )
+    except (ValueError, base64.binascii.Error) as e:
         logger.error(f"Error encrypting user fields: {e}")
+        raise e
